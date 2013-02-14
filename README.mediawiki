@@ -1,0 +1,1 @@
+''Scripts related to tracking participation on [http://en.wikipedia.org/wiki/WP:WikiProjects WikiProjects], groups of Wikipedia editors who work together.''
