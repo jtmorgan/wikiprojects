@@ -1,0 +1,18 @@
+#fill this out and change the name of the file to 'settings.py'. This overrides the 'settings.py' file that comes with WikiTools
+
+# Wiki login details
+username = 'YourBotsName'
+password = 'YourBotsPassword'
+apiurl = 'http://pt.wikipedia.org/w/api.php'
+ 
+# Toolserver details
+host = 'sql-s2-user'
+dbname = 'u_jtmorgan_wikiprojetos_p'
+ 
+# Report details (generic) #these are defaults, you can edit other pages if you specify in the script
+rootpage = 'Wikipédia:Projetos/Medicina' #this is the default page that will be edited, if not specified in the script
+editsumm = 'YourBotsName is making some edit' #default edit comment if none specified in script
+ 
+# Report details (multi-page) #I don't know what this does
+blankcontent = ''
+blanksumm = 'none'
