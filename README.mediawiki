@@ -13,7 +13,7 @@ Right now, you have to patch your copy of Wikitools a bit to get some of this to
 
 === invited_medicina ===
 Create table syntax:
-<code>CREATE TABLE `invited_medicina` (
+<nowiki>CREATE TABLE `invited_medicina` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int(11) DEFAULT NULL,
   `user_name` varbinary(200) DEFAULT NULL,
@@ -28,7 +28,7 @@ Create table syntax:
   PRIMARY KEY (`id`),
   UNIQUE KEY `user_id` (`user_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=362 DEFAULT CHARSET=latin1;
-</code>
+</nowiki>
 
 == Output of findNewEditors.py ==
 
