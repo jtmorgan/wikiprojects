@@ -1,5 +1,5 @@
 #! /home/jtmorgan/.local/bin/python
-
+# I'm using a local copy of python because I was getting funny output from cron. You should probably use the default.
 # Copyright 2013 Jtmorgan
  
 # This program is free software: you can redistribute it and/or modify
