@@ -1,1 +1,285 @@
 ''Scripts related to tracking participation on the Portuguese Wikipedia [http://pt.wikipedia.org/wiki/WP:WikiProjeto WikiProjects], groups of Wikipedia editors who work together.''
+
+== Wikitools patches ==
+
+Right now, you have to patch your copy of Wikitools a bit to get some of this to work. In future, we should just make a class, but for now...
+
+* ''wikitools/wiki.py.setSiteInfo: '' apply [http://code.google.com/p/python-wikitools/issues/detail?id=40 this patch] to line 109.
+
+* ''wikitools/page.py.edit:'' add 'sectiontitle' to the list of valid args.
+
+
+== Create table syntax ==
+
+=== invited_medicina ===
+Create table syntax:
+<code>CREATE TABLE `invited_medicina` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) DEFAULT NULL,
+  `user_name` varbinary(200) DEFAULT NULL,
+  `user_registration` varbinary(14) DEFAULT NULL,
+  `user_editcount` int(11) DEFAULT NULL,
+  `sample_date` datetime DEFAULT NULL,
+  `invited` tinyint(1) DEFAULT '0',
+  `bot_invited` tinyint(1) DEFAULT '0',
+  `bot_skipped` tinyint(1) DEFAULT '0',
+  `user_talkpage` int(11) DEFAULT NULL,
+  `ut_is_redirect` tinyint(1) DEFAULT '0',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_id` (`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=362 DEFAULT CHARSET=latin1;
+</code>
+
+== Output of findNewEditors.py ==
+
+It should look like this:
+<nowiki>
+==Daily Report==
+
+===Active new editors===
+Below is a list of editors who registered within the last 24 hours, have since made more than 2 edits, and were not blocked at the time the report was generated.
+ 
+{| class="wikitable sortable plainlinks"
+|-
+! Editor #
+! User name
+! Edit count
+! Contribs
+! Already invited?
+|-
+| 299
+| [[User_talk:Ironaxus|Ironaxus]]
+| 2
+| [[Special:Contributions/Ironaxus|contribs]]
+| 0
+|-
+| 300
+| [[User_talk:Daniel Steinman|Daniel Steinman]]
+| 12
+| [[Special:Contributions/Daniel Steinman|contribs]]
+| 0
+|-
+| 301
+| [[User_talk:Rickibraga|Rickibraga]]
+| 2
+| [[Special:Contributions/Rickibraga|contribs]]
+| 0
+|-
+| 302
+| [[User_talk:Rodrigocswm|Rodrigocswm]]
+| 2
+| [[Special:Contributions/Rodrigocswm|contribs]]
+| 0
+|-
+| 303
+| [[User_talk:TeofilHistoricul13|TeofilHistoricul13]]
+| 2
+| [[Special:Contributions/TeofilHistoricul13|contribs]]
+| 0
+|-
+| 304
+| [[User_talk:Manuel Quaresma de M. Júnior|Manuel Quaresma de M. Júnior]]
+| 13
+| [[Special:Contributions/Manuel Quaresma de M. Júnior|contribs]]
+| 0
+|-
+| 305
+| [[User_talk:Merchants1988|Merchants1988]]
+| 2
+| [[Special:Contributions/Merchants1988|contribs]]
+| 0
+|-
+| 306
+| [[User_talk:Capas-Rock|Capas-Rock]]
+| 3
+| [[Special:Contributions/Capas-Rock|contribs]]
+| 0
+|-
+| 307
+| [[User_talk:Thiagosaba|Thiagosaba]]
+| 3
+| [[Special:Contributions/Thiagosaba|contribs]]
+| 0
+|-
+| 308
+| [[User_talk:Daiana Arruda|Daiana Arruda]]
+| 9
+| [[Special:Contributions/Daiana Arruda|contribs]]
+| 0
+|-
+| 309
+| [[User_talk:Patricio88|Patricio88]]
+| 2
+| [[Special:Contributions/Patricio88|contribs]]
+| 0
+|-
+| 310
+| [[User_talk:Imovelnetsp|Imovelnetsp]]
+| 2
+| [[Special:Contributions/Imovelnetsp|contribs]]
+| 0
+|-
+| 311
+| [[User_talk:Adriano rheis|Adriano rheis]]
+| 2
+| [[Special:Contributions/Adriano rheis|contribs]]
+| 0
+|-
+| 312
+| [[User_talk:Dj Will feat.|Dj Will feat.]]
+| 5
+| [[Special:Contributions/Dj Will feat.|contribs]]
+| 0
+|-
+| 313
+| [[User_talk:GP Monteiro|GP Monteiro]]
+| 5
+| [[Special:Contributions/GP Monteiro|contribs]]
+| 0
+|-
+| 314
+| [[User_talk:Túlio97|Túlio97]]
+| 2
+| [[Special:Contributions/Túlio97|contribs]]
+| 0
+|-
+| 315
+| [[User_talk:TOM ENZY|TOM ENZY]]
+| 3
+| [[Special:Contributions/TOM ENZY|contribs]]
+| 0
+|-
+| 316
+| [[User_talk:Mvsilveira|Mvsilveira]]
+| 2
+| [[Special:Contributions/Mvsilveira|contribs]]
+| 0
+|-
+| 317
+| [[User_talk:Marcus leão|Marcus leão]]
+| 4
+| [[Special:Contributions/Marcus leão|contribs]]
+| 0
+|-
+| 318
+| [[User_talk:Ci2pt|Ci2pt]]
+| 9
+| [[Special:Contributions/Ci2pt|contribs]]
+| 0
+|-
+| 319
+| [[User_talk:Gonçalo Careca Anão|Gonçalo Careca Anão]]
+| 5
+| [[Special:Contributions/Gonçalo Careca Anão|contribs]]
+| 0
+|-
+| 320
+| [[User_talk:Daniel moreira santos|Daniel moreira santos]]
+| 2
+| [[Special:Contributions/Daniel moreira santos|contribs]]
+| 0
+|-
+| 321
+| [[User_talk:Liperamos27|Liperamos27]]
+| 2
+| [[Special:Contributions/Liperamos27|contribs]]
+| 0
+|-
+| 322
+| [[User_talk:Tsuwabuki|Tsuwabuki]]
+| 3
+| [[Special:Contributions/Tsuwabuki|contribs]]
+| 0
+|-
+| 323
+| [[User_talk:France63|France63]]
+| 2
+| [[Special:Contributions/France63|contribs]]
+| 0
+|-
+| 324
+| [[User_talk:Gabriel Fabri|Gabriel Fabri]]
+| 2
+| [[Special:Contributions/Gabriel Fabri|contribs]]
+| 0
+|-
+| 325
+| [[User_talk:LUIS MIGUEL CHAVES CORREIA|LUIS MIGUEL CHAVES CORREIA]]
+| 3
+| [[Special:Contributions/LUIS MIGUEL CHAVES CORREIA|contribs]]
+| 0
+|-
+| 326
+| [[User_talk:Junioeer|Junioeer]]
+| 2
+| [[Special:Contributions/Junioeer|contribs]]
+| 0
+|-
+| 327
+| [[User_talk:Patrick.ArqueirO|Patrick.ArqueirO]]
+| 4
+| [[Special:Contributions/Patrick.ArqueirO|contribs]]
+| 0
+|-
+| 328
+| [[User_talk:CarlosSobralpires|CarlosSobralpires]]
+| 3
+| [[Special:Contributions/CarlosSobralpires|contribs]]
+| 0
+|-
+| 329
+| [[User_talk:McMant|McMant]]
+| 5
+| [[Special:Contributions/McMant|contribs]]
+| 0
+|-
+| 330
+| [[User_talk:Nuno Moreira 95|Nuno Moreira 95]]
+| 2
+| [[Special:Contributions/Nuno Moreira 95|contribs]]
+| 0
+|-
+| 331
+| [[User_talk:Johnbnu|Johnbnu]]
+| 2
+| [[Special:Contributions/Johnbnu|contribs]]
+| 0
+|-
+| 332
+| [[User_talk:Veradoreymayan|Veradoreymayan]]
+| 3
+| [[Special:Contributions/Veradoreymayan|contribs]]
+| 0
+|-
+| 333
+| [[User_talk:Daniel Cintra Cugler|Daniel Cintra Cugler]]
+| 4
+| [[Special:Contributions/Daniel Cintra Cugler|contribs]]
+| 0
+|-
+| 334
+| [[User_talk:Rodrigo Z|Rodrigo Z]]
+| 6
+| [[Special:Contributions/Rodrigo Z|contribs]]
+| 0
+|-
+| 335
+| [[User_talk:Tatuquara|Tatuquara]]
+| 2
+| [[Special:Contributions/Tatuquara|contribs]]
+| 0
+|-
+| 336
+| [[User_talk:Danilojmessias|Danilojmessias]]
+| 2
+| [[Special:Contributions/Danilojmessias|contribs]]
+| 0
+|-
+| 337
+| [[User_talk:Lamoni003|Lamoni003]]
+| 2
+| [[Special:Contributions/Lamoni003|contribs]]
+| 0
+|-
+|}
+</nowiki>
