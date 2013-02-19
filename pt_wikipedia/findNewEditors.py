@@ -163,7 +163,7 @@ if rows:
 else:
 	gatherSample()
 	gatherTalkpageData()
-# 	inviteCheck() #hasn't been tested because we don't 
+	inviteCheck() #hasn't been tested because we don't 
 	output = buildReport()
 	publishReport(output)
 
