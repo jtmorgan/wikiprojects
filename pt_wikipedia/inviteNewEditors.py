@@ -1,4 +1,5 @@
 #! /home/jtmorgan/.local/bin/python
+# I'm using a local copy of python because I was getting funny cron output on toolserver. You should probably use the default one.
 
 # Copyright 2013 Jtmorgan
 
