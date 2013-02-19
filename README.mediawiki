@@ -33,10 +33,11 @@ Create table syntax:
 == Output of findNewEditors.py ==
 
 It should look like this:
-<nowiki>
-==Daily Report==
 
-===Active new editors===
+<nowiki>==Daily Report==</nowiki>
+
+<nowiki>===Active new editors===</nowiki>
+
 Below is a list of editors who registered within the last 24 hours, have since made more than 2 edits, and were not blocked at the time the report was generated.
  
 {| class="wikitable sortable plainlinks"
@@ -282,4 +283,3 @@ Below is a list of editors who registered within the last 24 hours, have since m
 | 0
 |-
 |}
-</nowiki>
