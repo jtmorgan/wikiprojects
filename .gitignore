@@ -1,2 +1,4 @@
 * settings.py
 pt_wikipedia/logs/
+*.pyc
+*.swp
