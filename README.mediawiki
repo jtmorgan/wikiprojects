@@ -1,3 +1,4 @@
+= Promoting and measuring editor participation in WikiProjects =
 ''Scripts related to tracking participation on the Portuguese Wikipedia [http://pt.wikipedia.org/wiki/WP:WikiProjeto WikiProjects], groups of Wikipedia editors who work together.''
 
 == Wikitools patches ==
@@ -10,10 +11,12 @@ Right now, you have to patch your copy of Wikitools a bit to get some of this to
 
 
 == Tables ==
-MySQL database tables are used to track relevant metrics about your project, such as who was invited, who visited, and which wikipages are included.
+MySQL database tables are used to track relevant metrics about your project, 
+such as who was invited, who visited, and which wikipages are included.
 
-=== invited_<yourprojectname> ===
-This table provides a log of the users who have been invited to the Project. You populate the majority of the metadata with a query like [https://github.com/jtmorgan/wikiprojects/blob/master/pt_wikipedia/findNewEditors.py#L64 this one].
+=== invited_yourprojectname ===
+This table provides a log of the users who have been invited to the Project. 
+You populate the majority of the metadata with a query like [https://github.com/jtmorgan/wikiprojects/blob/master/pt_wikipedia/findNewEditors.py#L64 this one].
 
  +-------------------+------------------+------+-----+---------+----------------+
  | Field             | Type             | Null | Key | Default | Extra          |
@@ -31,12 +34,15 @@ This table provides a log of the users who have been invited to the Project. You
  | ut_is_redirect    | tinyint(1)       | YES  |     | 0       |                |
  +-------------------+------------------+------+-----+---------+----------------+
 
-The script that [https://github.com/jtmorgan/wikiprojects/blob/master/pt_wikipedia/inviteNewEditors.py invites these users] to your project then updates the <code>invited, bot_invited</code> and <code>bot_skipped</code> columns.
+The script that [https://github.com/jtmorgan/wikiprojects/blob/master/pt_wikipedia/inviteNewEditors.py invites these users] 
+to your project then updates the <code>invited, bot_invited</code> and <code>bot_skipped</code> columns.
 
 
-=== pages_<yourprojectname> ===
-This table provides a log of the pages in your project space. Project members often create new pages (i.e. WikiProject_Cats/Members, Teahouse/Host_lounge/Announcements).
-Having an updated list of the pages in your project space makes it easier to keep track of who is editing what: for instance, it makes it easier to find out when users you invited to your project start participating.
+=== pages_yourprojectname ===
+This table provides a log of the pages in your project space. Project members often create new pages 
+(i.e. WikiProject_Cats/Members, Teahouse/Host_lounge/Announcements).
+Having an updated list of the pages in your project space makes it easier to keep track of who is editing what: 
+for instance, it makes it easier to find out when users you invited to your project start participating.
 
  +-------------+------------------+------+-----+---------+----------------+
  | Field       | Type             | Null | Key | Default | Extra          |
@@ -48,7 +54,10 @@ Having an updated list of the pages in your project space makes it easier to kee
  +-------------+------------------+------+-----+---------+----------------+
 
 You can keep this table up to date by running a query like this one on cron:
-<code>insert ignore into th_pages (page_id, page_namespace, page_title, page_touched) select page_id, page_namespace, page_title, page_touched from enwiki.page where page_namespace in (4,5) and page_title like "YourProjectName/%";</code>
+<code>insert ignore into th_pages (page_id, page_namespace, page_title, page_touched) select page_id, 
+page_namespace, page_title, page_touched from enwiki.page 
+where page_namespace in (4,5) and page_title like "YourProjectName/%";</code>
+
 == Scripts ==
 === Output of findNewEditors.py ===
 
@@ -58,8 +67,8 @@ The output markup of the invitee report should look like this:
 
  ===Active new editors===
 
-Below is a list of editors who registered within the last 24 hours, have since made more than 2 edits, and were not blocked at the time the report was generated.
- 
+<code>Below is a list of editors who registered within the last 24 hours, have since made more than 2 edits, and were not blocked at the time the report was generated.</code>
+
  {| class="wikitable sortable plainlinks"
  |-
  ! Editor #
@@ -106,4 +115,5 @@ Below is a list of editors who registered within the last 24 hours, have since m
  |-
  |}
 
-A similar (live) report can be viewed at [http://en.wikipedia.org/wiki/Wikipedia:Teahouse/Hosts/Database_reports http://en.wikipedia.org/wiki/Wikipedia:Teahouse/Hosts/Database_reports]
+A similar (live) report can be viewed at 
+[http://en.wikipedia.org/wiki/Wikipedia:Teahouse/Hosts/Database_reports http://en.wikipedia.org/wiki/Wikipedia:Teahouse/Hosts/Database_reports]
