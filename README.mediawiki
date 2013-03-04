@@ -9,9 +9,10 @@ Right now, you have to patch your copy of Wikitools a bit to get some of this to
 * ''wikitools/page.py.edit:'' add 'sectiontitle' to the list of valid args.
 
 
-== Create table syntax ==
+== Tables ==
+MySQL database tables are used to track relevant metrics about your project, such as who was invited, who visited, and which wikipages are included.
 
-=== invited_medicina ===
+=== invited_<yourprojectname> ===
 This table provides a log of the users who have been invited to the Project. You populate the majority of the metadata with a query like [https://github.com/jtmorgan/wikiprojects/blob/master/pt_wikipedia/findNewEditors.py#L64 this one].
 
  +-------------------+------------------+------+-----+---------+----------------+
@@ -32,25 +33,24 @@ This table provides a log of the users who have been invited to the Project. You
 
 The script that [https://github.com/jtmorgan/wikiprojects/blob/master/pt_wikipedia/inviteNewEditors.py invites these users] to your project then updates the <code>invited, bot_invited</code> and <code>bot_skipped</code> columns.
 
-;Create table:
-<nowiki>CREATE TABLE `invited_medicina` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) DEFAULT NULL,
-  `user_name` varbinary(200) DEFAULT NULL,
-  `user_registration` varbinary(14) DEFAULT NULL,
-  `user_editcount` int(11) DEFAULT NULL,
-  `sample_date` datetime DEFAULT NULL,
-  `invited` tinyint(1) DEFAULT '0',
-  `bot_invited` tinyint(1) DEFAULT '0',
-  `bot_skipped` tinyint(1) DEFAULT '0',
-  `user_talkpage` int(11) DEFAULT NULL,
-  `ut_is_redirect` tinyint(1) DEFAULT '0',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `user_id` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=362 DEFAULT CHARSET=latin1;
-</nowiki>
 
-== Output of findNewEditors.py ==
+=== pages_<yourprojectname> ===
+This table provides a log of the pages in your project space. Project members often create new pages (i.e. WikiProject_Cats/Members, Teahouse/Host_lounge/Announcements).
+Having an updated list of the pages in your project space makes it easier to keep track of who is editing what: for instance, it makes it easier to find out when users you invited to your project start participating.
+
+ +-------------+------------------+------+-----+---------+----------------+
+ | Field       | Type             | Null | Key | Default | Extra          |
+ +-------------+------------------+------+-----+---------+----------------+
+ | id          | int(11) unsigned | NO   | PRI | NULL    | auto_increment |
+ | page_id     | int(11)          | YES  | UNI | NULL    |                |
+ | p_title     | varbinary(255)   | YES  |     | NULL    |                |
+ | p_namespace | int(11)          | YES  |     | NULL    |                |
+ +-------------+------------------+------+-----+---------+----------------+
+
+You can keep this table up to date by running a query like this one on cron:
+<code>insert ignore into th_pages (page_id, page_namespace, page_title, page_touched) select page_id, page_namespace, page_title, page_touched from enwiki.page where page_namespace in (4,5) and page_title like "YourProjectName/%";</code>
+== Scripts ==
+=== Output of findNewEditors.py ===
 
 The output markup of the invitee report should look like this:
 
