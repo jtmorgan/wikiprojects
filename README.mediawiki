@@ -58,6 +58,31 @@ You can keep this table up to date by running a query like this one on cron:
 page_namespace, page_title, page_touched from enwiki.page 
 where page_namespace in (4,5) and page_title like "YourProjectName/%";</code>
 
+=== articles_yourprojectname ===
+Most WikiProjects are focused on editing articles within particular categories. If you are trying to get people to 
+participate in your WikiProject, you probably want to know when they edit articles related to those WikiProjects.
+But reading through the entire <code>categorylink</code> table takes a long time. It may be easier to create a local lookup
+table that contains the names and pageids of all the articles you're interested in tracking. That table might look
+something like this: 
+
+ +-------------+------------------+------+-----+---------+----------------+
+ | Field       | Type             | Null | Key | Default | Extra          |
+ +-------------+------------------+------+-----+---------+----------------+
+ | id          | int(11) unsigned | NO   | PRI | NULL    | auto_increment |
+ | page_id     | int(11)          | YES  | UNI | NULL    |                |
+ | p_title     | varbinary(255)   | YES  |     | NULL    |                |
+ | p_namespace | int(11)          | YES  |     | NULL    |                |
+ +-------------+------------------+------+-----+---------+----------------+
+
+You can then find edits to your project's articles by users you invited to the project with a fairly speedy query like this:
+<code>SELECT * FROM somewiki.revision AS r, yourdb.invited_yourprojectname AS i, yourdb.articles_yourprojectname AS a WHERE 
+r.rev_user = i.user_id AND r.rev_page = a.page_id;</code>
+
+You can populate this table with articles from multiple super- and sub-categories 
+(e.g. WikiProject_Milkshake_articles, Milkshake_stubs) by reading the category tree. There are multiple ways to do this
+(API, <code>somewiki.categorylinks</code>, [http://toolserver.org/~magnus/catscan_rewrite.php external tools]). 
+In Reading the Category Tree below, I describe how to do this by querying the Mediawiki database.
+
 == Scripts ==
 === Output of findNewEditors.py ===
 
