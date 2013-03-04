@@ -12,7 +12,24 @@ Right now, you have to patch your copy of Wikitools a bit to get some of this to
 == Create table syntax ==
 
 === invited_medicina ===
-Create table syntax:
+This table provides a log of the users who have been invited to the Project. You populate the majority of the metadata with a query like [https://github.com/jtmorgan/wikiprojects/blob/master/pt_wikipedia/findNewEditors.py#L64 this one].
++-------------------+------------------+------+-----+---------+----------------+
+| Field             | Type             | Null | Key | Default | Extra          |
++-------------------+------------------+------+-----+---------+----------------+
+| id                | int(11) unsigned | NO   | PRI | NULL    | auto_increment |
+| user_id           | int(11)          | YES  | UNI | NULL    |                |
+| user_name         | varbinary(200)   | YES  |     | NULL    |                |
+| user_registration | varbinary(14)    | YES  |     | NULL    |                |
+| user_editcount    | int(11)          | YES  |     | NULL    |                |
+| sample_date       | datetime         | YES  |     | NULL    |                |
+| invited           | tinyint(1)       | YES  |     | 0       |                |
+| bot_invited       | tinyint(1)       | YES  |     | 0       |                |
+| bot_skipped       | tinyint(1)       | YES  |     | 0       |                |
+| user_talkpage     | int(11)          | YES  |     | NULL    |                |
+| ut_is_redirect    | tinyint(1)       | YES  |     | 0       |                |
++-------------------+------------------+------+-----+---------+----------------+
+
+Create table:
 <nowiki>CREATE TABLE `invited_medicina` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int(11) DEFAULT NULL,
