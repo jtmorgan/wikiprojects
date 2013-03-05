@@ -142,3 +142,39 @@ The output markup of the invitee report should look like this:
 
 A similar (live) report can be viewed at 
 [http://en.wikipedia.org/wiki/Wikipedia:Teahouse/Hosts/Database_reports http://en.wikipedia.org/wiki/Wikipedia:Teahouse/Hosts/Database_reports]
+
+== Reading the category tree ==
+It is in fact relatively easy (though in some cases somewhat time-consuming) to reconstruct a category tree from the MediaWiki database.
+
+;Reading down the tree
+For example, lets say you want to get all the subcategories of [http://en.wikipedia.org/wiki/Category:WikiProject_Anatomy_articles WikiProject Anatomy Articles]:
+
+<code>select * from categorylinks where cl_to = "WikiProject_Anatomy_articles" AND cl_type = "subcat";</code>
+
+You see that there are four subcategories. Now you want to get the subcategories of one of those categories, such as [http://en.wikipedia.org/wiki/Category:Anatomy_articles_by_importance Anatomy articles by importance]:
+
+<code>select * from categorylinks where cl_to = "Anatomy_articles_by_importance" AND cl_type = "subcat";</code>
+
+Cool! Now you want to see if one of those subcategories also has subcategories:
+
+<code>select * from categorylinks where cl_to = "Mid-importance_Anatomy_articles" AND cl_type = "subcat";</code>
+
+That returns 0 rows, because there are no subcategories to this category. But if you change the cl_type you're looking for to "page", you'll see that there are lots of pages in that subcategory, most of which will probably not be listed under the parent category (unless someone has explicitly added both a parent and child category to the same page, which does happen, so as you read down the tree you'll have to screen out duplicates and/or assign some pages both primary and secondary categories)
+
+<code>select * from categorylinks where cl_to = "Mid-importance_Anatomy_articles" AND cl_type = "page";</code>
+
+So... the moral of the story is that this can be scripted up to output all the pages and subcategories under any given parent category. You can put these into a table like articles_yourprojectname to more efficiently monitor who's doing what on the articles your project is interested in.
+
+;Reading up the tree
+It's a little trickier, but still doable, to read the tree backwards. You can't look at cl_type: the only types are 'page', 'subcat' and 'file'.
+
+<code>select cl_type from categorylinks where cl_type NOT IN ("page", "subcat", "file") limit 1;</code>
+...returns 0 rows :(
+
+There's no 'supercat', 'is_subcat', 'is_parent' or anything.
+
+So you have to see if the sub-category page itself (cl_from) is listed categorized under a broader category, by matching page_id = cl_from. So for example this page: [http://en.wikipedia.org/wiki/Category:Anatomy_articles_by_importance http://en.wikipedia.org/wiki/Category:Anatomy_articles_by_importance]
+
+...is categorized under 'WikiProject Anatomy Articles' and 'Wikipedia 1.0 assessments', which you can see in the database with a query like this:
+
+<code>select * from enwiki.page as p, enwiki.categorylinks as c where p.page_id = c.cl_from and p.page_namespace = 14 and p.page_title = "Anatomy_articles_by_importance";</code>
