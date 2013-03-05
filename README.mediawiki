@@ -84,7 +84,10 @@ You can populate this table with articles from multiple super- and sub-categorie
 In Reading the Category Tree below, I describe how to do this by querying the Mediawiki database.
 
 == Scripts ==
-=== Output of findNewEditors.py ===
+=== findNewEditors.py ===
+This script grabs a sample of editors to invite to a project, stores them in invited_yourprojectname, and then prints a report of these invitees to a wikipage.
+
+;Output
 
 The output markup of the invitee report should look like this:
 
@@ -142,6 +145,9 @@ The output markup of the invitee report should look like this:
 
 A similar (live) report can be viewed at 
 [http://en.wikipedia.org/wiki/Wikipedia:Teahouse/Hosts/Database_reports http://en.wikipedia.org/wiki/Wikipedia:Teahouse/Hosts/Database_reports]
+
+=== inviteNewEditors.py ===
+This script sends invitations to the users who have recently been added to invited_yourprojectname. The invitation can be personalized adding an editor's username (see the [https://github.com/jtmorgan/wikiprojects/blob/master/pt_wikipedia/inviteNewEditors.py#L51 curhosts] list).
 
 == Reading the category tree ==
 It is in fact relatively easy (though in some cases somewhat time-consuming) to reconstruct a category tree from the MediaWiki database.
