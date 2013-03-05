@@ -148,7 +148,8 @@ A similar (live) report can be viewed at
 
 === inviteNewEditors.py ===
 This script sends invitations to the users who have recently been added to invited_yourprojectname. The invitation can be personalized adding an editor's username (see the [https://github.com/jtmorgan/wikiprojects/blob/master/pt_wikipedia/inviteNewEditors.py#L51 curhosts] list).
-
+You can also check whether the page contains templates that would preclude the user from receiving an invite, such as certain user warnings and [http://en.wikipedia.org/wiki/Template:Bots nobots] templates.
+After the invites are sent, the script updates invited_yourprojectname, indicating which users were invited and which ones were skipped.
 == Reading the category tree ==
 It is in fact relatively easy (though in some cases somewhat time-consuming) to reconstruct a category tree from the MediaWiki database.
 
