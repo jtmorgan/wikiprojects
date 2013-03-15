@@ -1,5 +1,6 @@
-#! /home/jtmorgan/.local/bin/python
-# I'm using a local copy of python because I was getting funny output from cron. You should probably use the default.
+#!/usr/bin/env python
+# -- coding: utf-8 --
+
 # Copyright 2013 Jtmorgan
  
 # This program is free software: you can redistribute it and/or modify
@@ -27,7 +28,7 @@ wiki = wikitools.Wiki(settings.apiurl)
 wiki.login(settings.username, settings.password)
 
 #initialize logging
-logging.basicConfig(filename='/home/jtmorgan/wikiprojects/pt_wikipedia/logs/invitations.log',level=logging.INFO) #no logs set up, yet
+logging.basicConfig(filename='/home/jonas/apps/wikiprojects/pt_wikipedia/invitations.log',level=logging.INFO) #no logs set up, yet
 
 #initialize mysql
 conn = MySQLdb.connect(host = 'sql-s2-user.toolserver.org', db = 'u_jtmorgan_wikiprojetos_p', read_default_file = '~/.my.cnf', use_unicode=1, charset="utf8" )
