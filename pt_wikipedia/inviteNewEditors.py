@@ -34,7 +34,7 @@ wiki = wikitools.Wiki(settings.apiurl)
 wiki.login(settings.username, settings.password)
 
 #initialize logging
-logging.basicConfig(filename='/home/jtmorgan/wikiprojects/pt_wikipedia/logs/invitations.log',level=logging.INFO) #no logs set up, yet
+logging.basicConfig(filename='logs/invitations.log',level=logging.INFO) #no logs set up, yet
 
 #log in to mysql
 conn = MySQLdb.connect(host = 'sql-s2-user.toolserver.org', db = 'u_jtmorgan_wikiprojetos_p', read_default_file = '~/.my.cnf', use_unicode=1, charset="utf8" )
@@ -129,7 +129,7 @@ for row in rows:
 	else:		
 		invite_list.append(user)
 inviteUsers()
-recordSkips()	
+#recordSkips()	
 
 # print ("invited: ", invite_list)
 # print ("skipped: ", skip_list)	

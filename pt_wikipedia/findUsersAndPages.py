@@ -2,79 +2,119 @@
 # -*- coding: utf-8 -*-
 
 '''
-	Author: Jxavier - jxavier@wikimedia.org
-	License: GPLv2
+    WikiProject - Code to search and select user to WikiProject
+    Copyright (C) 2012, 2013 - Jonas Xavier
 
-	Description: Script to search for editors which edited one of the given pages, at file pages.txt
+    This program is free software; you can redistribute it and/or
+    modify it under the terms of the GNU General Public License
+    as published by the Free Software Foundation; either version 2
+    of the License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 '''
 
-import json
-import urllib
+import json, urllib
+import wikipedia, catlib, pagegenerators
+from datetime import datetime
 
-#shared resources
-server = "http://pt.wikipedia.org/w/"
-time_init = '20060501000000'
-getter = urllib.URLopener()
-users_list = []
-bots_dict = ['bot', 'Bot', 'boT', 'BOT']
-
-try:
-	f = open('pages.txt')
-except Exception, e:
-	try:
-		import sys
-		f = open(sys.argv[1])
-	except Exception, e:
-		print "Passe um arquivo com os artigos, por favor"
-		raise e
-	print sys.argv[1]
+#Global
+main_category = "Medicina"
+site = wikipedia.Site("pt", "wikipedia")
+start_time = datetime.strptime('2013-01-01', "%Y-%m-%d")
+bot_dict = ['bot', 'Bot', 'BOT', 'bOt', 'boT', 'b0t', 'BOThe', 'BoT']
 
 def check_user(user_name):
-	for term in bots_dict:
-		if user_name.endswith(term):
-	 		return False
+	'''
+	Return True for human and registered user
+	'''
+	if user_name.count('.') >= 3:
+		return False
+	
+	for bot in bot_dict:
+		if user_name.endswith(bot):
+			return False
+
+	#otherwise
 	return True
 
-def get_history(page_title):
-	'''It uses API for request revisions from a @page_title, for "users" and "anons"
+def get_pages(category, recurse=0):
+	'''Retorna as páginas de uma dada categoria: category'''
+	page_set = set()
+	cat = catlib.Category(site, category)
 
-	Check https://www.mediawiki.org/wiki/API for Documentation and Examples       
+	pages = pagegenerators.CategorizedPageGenerator(cat, recurse)
+
+	for page in pages:
+		if wikipedia.Page(site, page.title()).namespace() is 0:
+			page_set.add(page.title())
+			#print page.title()
+	return page_set
+
+def get_history_users(page_title, start_time=None):
+	'''Get the revision history for a given page,
+	returns users list with:
+		-- User
+		-- Data/Timestamp
+	It's possible to select users based on edit timestamp,
+	just giving a start_time value in timestamp syntax.
 	'''
 
-	page_title = page_title.replace(' ', '_')
-	url = server + 'api.php?action=query&prop=revisions&rvlimit=20&titles=%s&rvprop=user&format=json' % (page_title)
-	print url
+	page_title = page_title.replace(" ", "_")
+
 	try:
-		data = getter.open(url)
-		rev = json.loads(data.readlines()[0])
-		data.close()
-		#Test if there's a page with given name
-		if rev['query']['pages'].keys()[0] == '-1':
-			print "Error 404 - page"
-			return
+		wpage = wikipedia.Page(site, page_title)
 	except Exception, e:
-		print "Nao foi possivel buscar o dado"
-		return
+		print "Página não existe - 404"
+		print page_title
+		return set()
 
-	#Return the revision part from JSON
-	return rev['query']['pages'][rev['query']['pages'].keys()[0]]['revisions']
+	history = wpage.fullVersionHistory()
+	users_list = []
 
-def rank_users():
-	# List all editors, non-anon, which edited one of the given pages
-	for page in f:
-		page = page.replace('\n', '')
-		hist = get_history(page)
-		for rev in hist:
-			#Exclude anon users
-			if not "anon" in rev.keys() and check_user(rev['user']):
-				users_list.append(rev['user'])
+	if start_time is None:	
+		for h in history:
+			if check_user(h[1]):
+				users_list.append(h[1])
+	else:
+		for h in history:
+			if start_time <= datetime.strptime(h[0][0:10], "%Y-%m-%d") and check_user(h[1]):
+				users_list.append(h[1])
+
+	return users_list
+
+def save_editors(users):
+	import codecs
+
+	f = codecs.open('editors_activity.csv', 'a+', 'utf-8')
+	for user in users:
+		f.write(user + ', ' + str(users[user]) + '\n')
 	f.close()
 
-	#Count edit per user
-	users_set = set(users_list)
-	users_counter = {}
-	for user in users_set:
-		print user, users_list.count(user)
-		users_counter[user] = users_list.count(user)
-	#print "\n", users_counter
-rank_users()
+def main():
+	pages_set = get_pages(main_category)
+	users_global = {}
+
+	for page in pages_set:
+		users_list = get_history_users(page)
+		for user in users_list:
+			try:
+				users_global[user] += 1
+			except Exception, e:
+				users_global[user] = 1
+	
+	for u in users_global:
+		print u, users_global[u]
+	save_editors(users_global)
+
+if __name__ == "__main__":
+	try:
+		main()
+	finally:
+		wikipedia.stopme()
