@@ -23,8 +23,10 @@
 import json, urllib
 import wikipedia, catlib, pagegenerators
 from datetime import datetime
+import json
 
 #Global
+archive_file = 'editors.csv'
 main_category = "Medicina"
 site = wikipedia.Site("pt", "wikipedia")
 start_time = datetime.strptime('2013-01-01', "%Y-%m-%d")
@@ -89,12 +91,11 @@ def get_history_users(page_title, start_time=None):
 
 	return users_list
 
-def save_editors(users):
+def save_editors(users_doc, toJSON=True):
 	import codecs
 
-	f = codecs.open('editors_activity.csv', 'a+', 'utf-8')
-	for user in users:
-		f.write(user + ', ' + str(users[user]) + '\n')
+	f = codecs.open(archive_file, 'w', 'utf-8')
+	f.writelines(json.dumps(users_doc))
 	f.close()
 
 def main():
@@ -111,7 +112,8 @@ def main():
 	
 	for u in users_global:
 		print u, users_global[u]
-	save_editors(users_global)
+	users_global.articles = page_set
+	save_data(users_global)
 
 if __name__ == "__main__":
 	try:
