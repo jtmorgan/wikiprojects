@@ -1,0 +1,2 @@
+Para que o programa funcione sem sobrecarregar a API do MediaWiki:
+* Mude a string da linha 3201, remova "content" e "id" de "ids|timestamp|user|content". A string deve ficar assim: "timestamp|user"
