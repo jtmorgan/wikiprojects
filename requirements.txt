@@ -7,3 +7,4 @@ export PYTHONPATH
 
 Edite o arquivo wikipedia.py do pywikipedia:
 Mude a linha 3222 para: rvprop='timestamp|user'
+Isso fará o bot usar menos banda, requisitando apenas o necessário para o trabalho
