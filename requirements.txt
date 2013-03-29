@@ -1,2 +1,6 @@
-wikitools==1.1.1
-BeautifulSoup==3.2.1
+#install pywikipedia:
+#svn checkout http://svn.wikimedia.org/svnroot/pywikipedia/trunk/pywikipedia/ pywikipedia
+
+#Set path
+PYTHONPATH=$PYTHONPATH:~/apps/pywikipedia/
+export PYTHONPATH
