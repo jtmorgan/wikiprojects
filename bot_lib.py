@@ -3,31 +3,12 @@
 
 import codecs, json
 import wikipedia, catlib, pagegenerators
-import sqlite3 as sql
 import logging
 from time import sleep
-
-class DAO:
-	'''	Database layer	'''
-	def __init__(self):
-		self.db_schema = "CREATE TABLE editors(editor_name varchar(15) PRIMARY KEY,edit_count INTEGER, invited BOOLEAN);"
-		self.db_name = "editors"
-		self.db = sql.connect(self.db_name + ".db")
-		self.c = self.db.cursor()
-
-	def insert_editors(self, editors):
-		for key, editor in editors:
-			self.c.execute("INSERT INTO "+self.db_name+" values(?, ?, ?)",  (key, editor, 0))
-		print "Inserting editors data"
-
-	def get_editors(self):
-		self.c.execute("SELECT editor_name FROM " + self.db_name + 
-			"WHERE invited=0")
-		editors_raw = self.c.fetchall()
-		editors = []
-		for editor in editors:
-			editors.append(editor)
-		return editors
+import settings
+import shelve
+from datetime import datetime
+from urllib import quote
 
 class Collector:
 	def __init__(self, site, *categories):
@@ -37,13 +18,13 @@ class Collector:
 		self.pages_set = set()
 		self.editors = {}
 		self.folder = 'revisions/'
-		self.db = DAO()
 
 	def get_pages(self):
 		'''Retorna as páginas de uma dada categoria: category'''
 
 		for category in self.categories:
 			#print category, type(category), len(category)
+			print category
 			cat = catlib.Category(self.site, category[0])
 
 			pages = pagegenerators.CategorizedPageGenerator(cat)
@@ -74,34 +55,37 @@ class Collector:
 				print "Página não existe - 404"
 				if self.log:
 					print page
-				return set()
+				return list()
 
 			history = wpage.fullVersionHistory()
-			self.save(history, "history_" + page)
-			editors_list = []
 
 			if start_time is None:
 				for h in history:
 					if self.check_user(h[1]) is True:
-						try:
-							self.editors[h[1]] += 1
-						except Exception, e:
-							self.editors[h[1]] = 1
+						if self.editors.has_key(h[1]):
+							self.editors[h[1]]['counter'] += 1
+							self.editors[h[1]]['edits'].append(datetime.strptime(h[0][0:10], "%Y-%m-%d"))
+						else:
+							self.editors[h[1]] = {'counter' : 1, 'invited' :  False, 'edits' : list()}
+							self.editors[h[1]]['edits'].append(datetime.strptime(h[0][0:10], "%Y-%m-%d"))
 			else:
 				for h in history:
 					if (start_time <= datetime.strptime(h[0][0:10],
 					 "%Y-%m-%d") and self.check_user(h[1])):
-						try:
-							self.editors[h[1]] += 1
-						except Exception, e:
-							self.editors[h[1]] = 1
+						if self.editors.has_key(h[1]):
+							self.editors[h[1]]['counter'] += 1
+							self.editors[h[1]]['edits'].append(datetime.strptime(h[0][0:10], "%Y-%m-%d"))
+						else:
+							self.editors[h[1]] = {'counter' : 1, 'invited' :  False, 'edits' : list()}
+							self.editors[h[1]]['edits'].append(datetime.strptime(h[0][0:10], "%Y-%m-%d"))
 			del history
 		return self.editors
 
-	def save(self, structure, filename):
-		f = codecs.open(self.folder + filename + ".json", 'w', 'utf-8')
-		f.writelines(json.dumps(structure))
-		f.close()
+	def save(self, structure, name):
+		print "Salvando: ", name.encode('utf-8')
+		db = DAO(name.encode('utf-8'))
+		db.insert(structure)
+		del db
 
 	def check_user(self, username):
 		'''	Return True for human and registered user '''
@@ -113,43 +97,80 @@ class Collector:
 				return False
 		return True
 
-	def feed_db(self):
-		self.db.insert_editors(self.editors)
+	def load_editors(self, dbname):
+		db = DAO(dbname.encode('utf-8'))
+		self.editors = db.get_editors()
+		del db
 
 class Invite:
 	def __init__(self, site, editors):
 		assert len(editors) > 0, "Nenhum editor foi passado"
 		self.editors = editors
 		self.site = site
-		self.invite = u'{{subst:convite-medicina|~~~~}}'
-		self.user_discussion_page = u'Usuário(a)_Discussão:'
-		self.bot_comment = u'Edição automática de teste feita pelo wikiprojetosbot :)'
+		self.invite = settings.invite_msg
+		self.user_discussion_page = settings.user_discussion_page
+		self.bot_comment = settings.bot_comment
 
 	def __init__(self, site, filename):
-		self.editors = []
+		self.contact_users = settings.contact_users
+		self.contact_template = settings.contact_template
 		self.filename = filename
+		self.editors = DAO(filename)
 		self.site = site
-		self.invite = u'{{subst:convite-medicina|~~~~}}'
-		self.user_discussion_page = u'Usuário(a)_Discussão:'
-		self.bot_comment = u'Edição automática de teste feita pelo wikiprojetosbot :)'
+		self.invite = settings.invite_msg
+		self.user_discussion_page = settings.user_discussion_page
+		self.bot_comment = settings.bot_comment
 
 	def inviter(self):
-		for editor in self.editors:
-			wpage = wikipedia.Page(self.site, self.user_discussion_page + editor)
-			message = wpage.get() + self.invite
-			wpage.put(message, comment=self.bot_comment)
-			
-			#wait 3 second to send next invite and don't overload server
-			sleep(3)
+		self.editors.db.writeback = True
 
-	def load_editors(self, filename):
-		editors = codecs.open(filename, 'r', 'utf-8')
-		editors = editors.readlines()
-		self.editors = editors
-		return json.loads(editors[0])
+		for i, editor in enumerate(self.editors.get_editors()):
+			self.send(editor, self.contact_users[i%len(self.contact_users)])
+			sleep(1)
 
-	def load_editors(self):
-		editors = codecs.open(self.filename, 'r', 'utf-8')
-		editors = editors.readlines()
-		self.editors = editors
-		return json.loads(editors[0])
+	def send(self, editor, contact):
+		try:
+			#wpage = wikipedia.Page(self.site, self.user_discussion_page + quote(editor))
+			#message = wpage.get() + self.invite % (self.contact_template % (contact, contact, contact))
+			print editor, self.invite % (self.contact_template % (contact, contact, contact))
+			self.editors.db[editor]['invited'] = True
+			self.editors.db.sync()
+		except Exception, e:
+			print "Erro com o usuário ", editor
+			raise e
+			#wpage.put(message, comment=self.bot_comment)
+		
+class DAO:
+	'''	Database layer	'''
+	def __init__(self, dbname, action="W"):
+		self.dbname = dbname
+		if action is "R":
+			self.db = shelve.open(self.dbname+'.db', "r")
+		else:
+			self.db = shelve.open(self.dbname+'.db', "w")
+		self.query_buffer = None
+
+	def __del__(self):
+		self.db.close()
+
+	def insert(self, structure):
+		for key in structure:
+			self.db[key.encode('utf-8')] = structure[key]
+		self.db.sync()
+
+	def get_editors(self, threshold=3):
+		print "Searching editors with at least " + str(threshold) + " editions"
+		if self.query_buffer is not None:
+			if raw_input(
+				"Query buffer not empty, continue? [y/n]") is "n":
+				print "Query is not empty!"
+				#return None
+
+		self.query_buffer = []
+
+		for key in self.db:
+			if self.db[key]['counter'] >= threshold and not self.db[key]['invited']:
+				self.query_buffer.append(key)
+
+		print len(self.query_buffer), "para convidar"
+		return self.query_buffer
