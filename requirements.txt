@@ -1,6 +1,9 @@
-#install pywikipedia:
-#svn checkout http://svn.wikimedia.org/svnroot/pywikipedia/trunk/pywikipedia/ pywikipedia
+install pywikipedia:
+svn checkout http://svn.wikimedia.org/svnroot/pywikipedia/trunk/pywikipedia/ pywikipedia
 
-#Set path
+Set path
 PYTHONPATH=$PYTHONPATH:~/apps/pywikipedia/
 export PYTHONPATH
+
+Edite o arquivo wikipedia.py do pywikipedia:
+Mude a linha 3222 para: rvprop='timestamp|user'
