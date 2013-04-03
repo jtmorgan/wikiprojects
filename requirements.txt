@@ -2,7 +2,7 @@ install pywikipedia:
 svn checkout http://svn.wikimedia.org/svnroot/pywikipedia/trunk/pywikipedia/ pywikipedia
 
 Set path
-PYTHONPATH=$PYTHONPATH:~/apps/pywikipedia/
+PYTHONPATH=$PYTHONPATH:~/pywikipedia/
 export PYTHONPATH
 
 Edite o arquivo wikipedia.py do pywikipedia:
