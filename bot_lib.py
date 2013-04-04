@@ -20,7 +20,7 @@ class Collector:
 		self.folder = 'revisions/'
 
 	def get_pages(self):
-		'''Retorna as páginas de uma dada categoria: category'''
+		'''Retorna as pÃ¡ginas de uma dada categoria: category'''
 
 		for category in self.categories:
 			#print category, type(category), len(category)
@@ -52,7 +52,7 @@ class Collector:
 			try:
 				wpage = wikipedia.Page(self.site, page)
 			except Exception, e:
-				print "Página não existe - 404"
+				print "PÃ¡gina nÃ£o existe - 404"
 				if self.log:
 					print page
 				return list()
@@ -115,14 +115,14 @@ class Invite:
 		self.contact_users = settings.contact_users
 		self.contact_template = settings.contact_template
 		self.filename = filename
-		self.editors = DAO(filename)
+		self.editors = DAO(filename, action="R")
 		self.site = site
 		self.invite = settings.invite_msg
 		self.user_discussion_page = settings.user_discussion_page
 		self.bot_comment = settings.bot_comment
 
 	def inviter(self):
-		self.editors.db.writeback = True
+		#self.editors.db.writeback = True
 
 		for i, editor in enumerate(self.editors.get_editors()):
 			self.send(editor, self.contact_users[i%len(self.contact_users)])
@@ -136,18 +136,18 @@ class Invite:
 			self.editors.db[editor]['invited'] = True
 			self.editors.db.sync()
 		except Exception, e:
-			print "Erro com o usuário ", editor
+			print "Erro com o usuÃ¡rio ", editor
 			raise e
 			#wpage.put(message, comment=self.bot_comment)
-		
+
 class DAO:
 	'''	Database layer	'''
 	def __init__(self, dbname, action="W"):
 		self.dbname = dbname
 		if action is "R":
-			self.db = shelve.open(self.dbname+'.db', "r")
+			self.db = shelve.open(self.dbname+'.db', "r", writeback=True)
 		else:
-			self.db = shelve.open(self.dbname+'.db', "w")
+			self.db = shelve.open(self.dbname+'.db', "n", writeback=True)
 		self.query_buffer = None
 
 	def __del__(self):
@@ -173,4 +173,4 @@ class DAO:
 				self.query_buffer.append(key)
 
 		print len(self.query_buffer), "para convidar"
-		return self.query_buffer
+		return self.query_buffer	
