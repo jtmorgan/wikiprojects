@@ -1,11 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-user_discussion_page = u'Usuário(a)_Discussão:'
-bot_comment = u'Edição automática de teste feita pelo wikiprojetosbot :)'
+from datetime import datetime
 
-contact_users = [u'Tom', u'Jonas', u'Oona']
+start_time = datetime.strptime("2013-01-01", "%Y-%m-%d")
+
+user_discussion_page = u'Usuário(a)_Discussão:'
+bot_comment = u'Edição, automática, de teste feita pelo wikiprojetosbot :)'
+
+contact_users = [u'everton137', u'Jonas AGX', u'Oona', u'Alchimista']
 
 contact_template = u'[[Usuário(a):%s|%s]] ([[Usuário(a) Discussão:%s|discussão]]) {{CURRENTTIME}} de {{CURRENTDAY}} de {{CURRENTMONTHNAME}} de {{CURRENTYEAR}} ([[UTC]])'
 invite_msg = u'{{subst:convite-medicina|%s}}'
-categorias = [u'Medicina']
+
+#As much categories as you want :)
+categorias = [u'Medicina', u'Fisiologia']
