@@ -13,20 +13,20 @@ from urllib import quote
 class Collector:
 	def __init__(self, site, *categories):
 		self.log = False
-		self.categories = categories
+		self.categories = categories[0]
 		self.site = site
 		self.pages_set = set()
 		self.editors = {}
 		self.folder = 'revisions/'
+		self.bot_set = set()
+		self.get_bot_list()
 
 	def get_pages(self):
-		'''Retorna as pÃ¡ginas de uma dada categoria: category'''
-
-		for category in self.categories:
-			#print category, type(category), len(category)
-			print category
-			cat = catlib.Category(self.site, category[0])
-
+		'''Retorna as páginas de uma dada categoria: category'''
+		#print type(self.categories)
+		for c in self.categories:
+			print c
+			cat = catlib.Category(self.site, c)
 			pages = pagegenerators.CategorizedPageGenerator(cat)
 			for page in pages:
 				if wikipedia.Page(self.site, page.title()).namespace() is 0:
@@ -52,7 +52,7 @@ class Collector:
 			try:
 				wpage = wikipedia.Page(self.site, page)
 			except Exception, e:
-				print "PÃ¡gina nÃ£o existe - 404"
+				print "Página não existe - 404"
 				if self.log:
 					print page
 				return list()
@@ -61,7 +61,7 @@ class Collector:
 
 			if start_time is None:
 				for h in history:
-					if self.check_user(h[1]) is True:
+					if self.check_user(h[1]):
 						if self.editors.has_key(h[1]):
 							self.editors[h[1]]['counter'] += 1
 							self.editors[h[1]]['edits'].append(datetime.strptime(h[0][0:10], "%Y-%m-%d"))
@@ -88,14 +88,20 @@ class Collector:
 		del db
 
 	def check_user(self, username):
-		'''	Return True for human and registered user '''
-		bot_dict = ['bot', 'Bot', 'BOT', 'bOt', 'boT', 'b0t', 'BOThe', 'BoT']
 		if username is None or username.count('.') >= 3:
 			return False
-		for bot in bot_dict:
-			if username.endswith(bot):
-				return False
+		elif username in self.bot_set:
+			return False
 		return True
+
+	def get_bot_list(self):
+		cat = catlib.Category(self.site, u"!Robôs")
+		pages = pagegenerators.CategorizedPageGenerator(cat)
+		for page in pages:
+			if wikipedia.Page(self.site, page.title()).namespace() is 2:
+				self.bot_set.add(page.title().split(":")[1])
+		print u"A Wikipedia possui ", len(self.bot_set), u" robôs"
+		return self.bot_set
 
 	def load_editors(self, dbname):
 		db = DAO(dbname.encode('utf-8'))
@@ -115,39 +121,36 @@ class Invite:
 		self.contact_users = settings.contact_users
 		self.contact_template = settings.contact_template
 		self.filename = filename
-		self.editors = DAO(filename, action="R")
+		self.editors = DAO(filename)
 		self.site = site
 		self.invite = settings.invite_msg
 		self.user_discussion_page = settings.user_discussion_page
 		self.bot_comment = settings.bot_comment
 
 	def inviter(self):
-		#self.editors.db.writeback = True
-
 		for i, editor in enumerate(self.editors.get_editors()):
 			self.send(editor, self.contact_users[i%len(self.contact_users)])
 			sleep(1)
 
 	def send(self, editor, contact):
 		try:
-			#wpage = wikipedia.Page(self.site, self.user_discussion_page + quote(editor))
-			#message = wpage.get() + self.invite % (self.contact_template % (contact, contact, contact))
-			print editor, self.invite % (self.contact_template % (contact, contact, contact))
+			wpage = wikipedia.Page(self.site, self.user_discussion_page + quote(editor))
+			message = wpage.get() + self.invite % (self.contact_template % (contact, contact, contact))
+			#print editor, self.invite % (self.contact_template % (contact, contact, contact))
+			wpage.put(message, comment=settings.bot_comment)
+			print editor, " convidado"
 			self.editors.db[editor]['invited'] = True
 			self.editors.db.sync()
 		except Exception, e:
-			print "Erro com o usuÃ¡rio ", editor
+			print "Erro com o usuário ", editor
 			raise e
 			#wpage.put(message, comment=self.bot_comment)
 
 class DAO:
 	'''	Database layer	'''
-	def __init__(self, dbname, action="W"):
+	def __init__(self, dbname):
 		self.dbname = dbname
-		if action is "R":
-			self.db = shelve.open(self.dbname+'.db', "r", writeback=True)
-		else:
-			self.db = shelve.open(self.dbname+'.db', "n", writeback=True)
+		self.db = shelve.open(self.dbname+'.db', writeback=True)
 		self.query_buffer = None
 
 	def __del__(self):
@@ -173,4 +176,4 @@ class DAO:
 				self.query_buffer.append(key)
 
 		print len(self.query_buffer), "para convidar"
-		return self.query_buffer	
+		return self.query_buffer
