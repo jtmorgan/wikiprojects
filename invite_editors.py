@@ -4,7 +4,6 @@
 from bot_lib import Invite
 from wikipedia import Site
 from datetime import datetime
-import settings
 
 site = Site('pt', 'wikipedia')
 
