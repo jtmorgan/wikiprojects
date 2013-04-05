@@ -1,15 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-'''
-os.system('PYTHONPATH=$PYTHONPATH:~/apps/pywikipedia/')
-os.system('export PYTHONPATH')
-'''
 
 from bot_lib import Collector
 from bot_lib import Invite
 from wikipedia import Site
 from datetime import datetime
-from bot_lib import DAO
+#from bot_lib import DAO
 import settings
 
 site = Site('pt', 'wikipedia')
