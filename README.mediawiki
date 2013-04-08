@@ -1,3 +1,19 @@
 == WikiProjeto ==
-A proposta do wikiprojeto é encontrar editores para melhorar verbetes na Wikipédia lusófona, 
+A proposta do wikiprojeto é encontrar editores para melhorar verbetes na Wikipédia lusófona
 
+== O bot ==
+O objetivo do '''wikiprojectosbot''' é estimular editores a melhorar artigos de uma categoria ou conjunto de categorias, isso é feito a partir de métricas do histórico de edições das páginas de uma ou mais categorias.
+
+=== bot_lib.py ===
+Módulo criado para o bot, nele estão presentes os principais componentes e estruturas dos quais o bot faz uso.
+
+; Collector
+Classe responsável pelas tarefa de requisição, como buscar editores, páginas de uma dada categoria. Faz uso do Pywikipedia e urllib, módulo do Python.
+
+; Inviter
+Classe responsável por usar regras de convite, envio de mensagens. Está relacionada com a classe Collector como dependente das suas respostas.
+
+; DAO
+Nome para ''Data access object'', classe responsável pela persistência dos dados usados pelo bot. Trabalho lendo, escrevendo e atualizado dados de estado sobre os editores e outros metadados próximos.
+
+Faz uso do módulo Python, Shelve, um modelo de persistência baseado em estruturas de dicionário e arquivos binários, como forma de polpar espaço de disco e agilizar o tempo de leitura e uso de memória.
