@@ -3,12 +3,15 @@
 
 import codecs, json
 import wikipedia, catlib, pagegenerators
-import logging
+import logging, os
 from time import sleep
 import settings
 import shelve
 from datetime import datetime
 from urllib import quote
+from userlib import User
+
+logging.basicConfig(filename='logs/bot.log',level=logging.INFO)
 
 class Collector:
 	def __init__(self, site, *categories):
@@ -17,9 +20,8 @@ class Collector:
 		self.site = site
 		self.pages_set = set()
 		self.editors = {}
-		self.folder = 'revisions/'
-		self.bot_set = set()
-		self.get_bot_list()
+		#self.folder = 'revisions/'
+		self.bot_set = self.get_bot_list()
 
 	def get_pages(self):
 		'''Retorna as páginas de uma dada categoria: category'''
@@ -31,6 +33,9 @@ class Collector:
 			for page in pages:
 				if wikipedia.Page(self.site, page.title()).namespace() is 0:
 					self.pages_set.add(page.title())
+
+		DAO('pages').insert_list(list(self.pages_set))
+		
 		return list(self.pages_set)
 
 	def get_editors(self, start_time=None):
@@ -52,12 +57,13 @@ class Collector:
 			try:
 				wpage = wikipedia.Page(self.site, page)
 			except Exception, e:
+				logging.info("Collector: Erro com página: " + page)
 				print "Página não existe - 404"
 				if self.log:
 					print page
 				return list()
 
-			history = wpage.fullVersionHistory()
+			history = wpage.fullVersionHistory(revCount=200)
 
 			if start_time is None:
 				for h in history:
@@ -84,24 +90,34 @@ class Collector:
 	def save(self, structure, name):
 		print "Salvando: ", name.encode('utf-8')
 		db = DAO(name.encode('utf-8'))
-		db.insert(structure)
+		db.insert_dict(structure)
 		del db
 
 	def check_user(self, username):
-		if username is None or username.count('.') >= 3:
+		u = User(self.site, username)
+		if username is None or u.isAnonymous() or u.isBlocked():
 			return False
 		elif username in self.bot_set:
 			return False
+		#print username, "passed"
 		return True
 
 	def get_bot_list(self):
-		cat = catlib.Category(self.site, u"!Robôs")
-		pages = pagegenerators.CategorizedPageGenerator(cat)
-		for page in pages:
-			if wikipedia.Page(self.site, page.title()).namespace() is 2:
-				self.bot_set.add(page.title().split(":")[1])
-		print u"A Wikipedia possui ", len(self.bot_set), u" robôs"
-		return self.bot_set
+		if os.path.isfile('bot_list.db') is True:
+			print "Bot list found: " + 'bot_list.db'
+			return DAO('bot_list').get_list()
+		else:
+			bot_set = []
+			cat = catlib.Category(self.site, u"!Robôs")
+			pages = pagegenerators.CategorizedPageGenerator(cat)
+			for page in pages:
+				if wikipedia.Page(self.site, page.title()).namespace() is 2:
+					bot_set.append(page.title().split(":")[1])
+			print u"A Wikipedia possui ", len(bot_set), u" robôs"
+			bots = DAO('bot_list')
+			bots.insert_list(bot_set)
+			del bots
+			return bot_set
 
 	def load_editors(self, dbname):
 		db = DAO(dbname.encode('utf-8'))
@@ -136,14 +152,15 @@ class Invite:
 		try:
 			wpage = wikipedia.Page(self.site, self.user_discussion_page + quote(editor))
 			message = wpage.get() + self.invite % (self.contact_template % (contact, contact, contact))
-			#print editor, self.invite % (self.contact_template % (contact, contact, contact))
+			print editor, self.invite % (self.contact_template % (contact, contact, contact))
 			wpage.put(message, comment=settings.bot_comment)
 			print editor, " convidado"
 			self.editors.db[editor]['invited'] = True
+			self.editors.db[editor]['invite_date'] = datetime.today()
 			self.editors.db.sync()
 		except Exception, e:
 			print "Erro com o usuário ", editor
-			raise e
+			logging.info("Invite: Erro ao convidar: " + editor)
 			#wpage.put(message, comment=self.bot_comment)
 
 class DAO:
@@ -156,12 +173,20 @@ class DAO:
 	def __del__(self):
 		self.db.close()
 
-	def insert(self, structure):
+	def insert_dict(self, structure):
 		for key in structure:
 			self.db[key.encode('utf-8')] = structure[key]
+			print key, "inserted in db"
 		self.db.sync()
 
-	def get_editors(self, threshold=3):
+	def insert_list(self, structure):
+		self.db['pages'] = structure
+		self.db.sync()
+
+	def get_list(self):
+		return self.db.items()
+
+	def get_editors(self, threshold=1):
 		print "Searching editors with at least " + str(threshold) + " editions"
 		if self.query_buffer is not None:
 			if raw_input(
