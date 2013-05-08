@@ -3,3 +3,5 @@ pt_wikipedia/logs/
 *.pyc
 *.swp
 *.InterarchyMirrorCacheData*
+*.xls
+*.csv
