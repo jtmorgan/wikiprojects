@@ -1,4 +1,5 @@
-* settings.py
+*settings.py
 pt_wikipedia/logs/
 *.pyc
 *.swp
+*.InterarchyMirrorCacheData*
