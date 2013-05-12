@@ -99,8 +99,8 @@ class Collector:
 			return False
 		elif username in self.bot_set:
 			return False
-		#print username, "passed"
-		return True
+		if u.editCount() <= settings.edit_max_editcount and u.editCount() >= settings.edit_min_editcount:
+			return True
 
 	def get_bot_list(self):
 		if os.path.isfile('bot_list.db') is True:
