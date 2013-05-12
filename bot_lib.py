@@ -15,7 +15,7 @@ logging.basicConfig(filename='logs/bot.log',level=logging.INFO)
 
 class Collector:
 	def __init__(self, site, *categories):
-		self.log = False
+		self.log = True
 		self.categories = categories[0]
 		self.site = site
 		self.pages_set = set()
@@ -50,6 +50,9 @@ class Collector:
 		if len(self.pages_set) is 0:
 			self.get_pages()
 
+		if self.log is True:
+			print "There're %d pages to check historic" % len(self.pages_set)
+
 		for page in self.pages_set:
 			page = page.replace(" ", "_")
 			if self.log:
@@ -63,27 +66,27 @@ class Collector:
 					print page
 				return list()
 
-			history = wpage.fullVersionHistory(revCount=200)
+			history = wpage.getLatestEditors(limit=100)
 
 			if start_time is None:
 				for h in history:
-					if self.check_user(h[1]):
-						if self.editors.has_key(h[1]):
-							self.editors[h[1]]['counter'] += 1
-							self.editors[h[1]]['edits'].append(datetime.strptime(h[0][0:10], "%Y-%m-%d"))
+					if self.check_user(h['user']):
+						if self.editors.has_key(h['user']):
+							self.editors[h['user']]['counter'] += 1
+							self.editors[h['user']]['edits'].append(datetime.strptime(h['timestamp'][0:10], "%Y-%m-%d"))
 						else:
-							self.editors[h[1]] = {'counter' : 1, 'invited' :  False, 'edits' : list()}
-							self.editors[h[1]]['edits'].append(datetime.strptime(h[0][0:10], "%Y-%m-%d"))
+							self.editors[h['user']] = {'counter' : 1, 'invited' :  False, 'edits' : list()}
+							self.editors[h['user']]['edits'].append(datetime.strptime(h['timestamp'][0:10], "%Y-%m-%d"))
 			else:
 				for h in history:
-					if (start_time <= datetime.strptime(h[0][0:10],
-					 "%Y-%m-%d") and self.check_user(h[1])):
-						if self.editors.has_key(h[1]):
-							self.editors[h[1]]['counter'] += 1
-							self.editors[h[1]]['edits'].append(datetime.strptime(h[0][0:10], "%Y-%m-%d"))
+					if (start_time <= datetime.strptime(h['timestamp'][0:10],
+					 "%Y-%m-%d") and self.check_user(h['user'])):
+						if self.editors.has_key(h['user']):
+							self.editors[h['user']]['counter'] += 1
+							self.editors[h['user']]['edits'].append(datetime.strptime(h['timestamp'][0:10], "%Y-%m-%d"))
 						else:
-							self.editors[h[1]] = {'counter' : 1, 'invited' :  False, 'edits' : list()}
-							self.editors[h[1]]['edits'].append(datetime.strptime(h[0][0:10], "%Y-%m-%d"))
+							self.editors[h['user']] = {'counter' : 1, 'invited' :  False, 'edits' : list()}
+							self.editors[h['user']]['edits'].append(datetime.strptime(h['timestamp'][0:10], "%Y-%m-%d"))
 			del history
 		return self.editors
 
@@ -101,6 +104,7 @@ class Collector:
 			return False
 		if u.editCount() <= settings.edit_max_editcount and u.editCount() >= settings.edit_min_editcount:
 			return True
+		return False
 
 	def get_bot_list(self):
 		if os.path.isfile('bot_list.db') is True:
