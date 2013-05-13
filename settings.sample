@@ -5,13 +5,14 @@ from datetime import datetime
 
 start_time = datetime.strptime("2013-01-01", "%Y-%m-%d")
 
+edit_max_editcount = 300
+edit_min_editcount = 1
+
 user_discussion_page = u'Usuário(a)_Discussão:'
 bot_comment = u'Edição, automática, de teste feita pelo wikiprojetosbot :)'
 
 contact_users = [u'everton137', u'Jonas AGX', u'Oona', u'Alchimista']
 
-contact_template = u'[[Usuário(a):%s|%s]] ([[Usuário(a) Discussão:%s|discussão]]) {{CURRENTTIME}} de {{CURRENTDAY}} de {{CURRENTMONTHNAME}} de {{CURRENTYEAR}} ([[UTC]])'
+contact_template = u'[[Usuário(a):%s|%s]] ([[Usuário(a) Discussão:%s|discussão]]) {{subst:CURRENTTIME}} de {{subst:CURRENTDAY}} de {{subst:CURRENTMONTHNAME}} de {{subst:CURRENTYEAR}} ([[UTC]])'
 invite_msg = u'{{subst:convite-medicina|%s}}'
-
-#As much categories as you want :)
 categorias = [u'Medicina', u'Fisiologia']
