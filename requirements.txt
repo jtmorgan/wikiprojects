@@ -4,3 +4,5 @@ svn checkout http://svn.wikimedia.org/svnroot/pywikipedia/trunk/pywikipedia/ pyw
 Set path
 PYTHONPATH=$PYTHONPATH:~/pywikipedia/
 export PYTHONPATH
+
+Edit settings.sample as you want and save it as setting.py
