@@ -17,7 +17,6 @@ from userlib import User
 
 logging.basicConfig(filename='logs/bot.log', level=logging.INFO)
 
-
 class Collector:
     def __init__(self, site, *categories):
         self.log = True
@@ -118,16 +117,23 @@ class Collector:
 
         There is a range of max and min number of editions the 
         '''
+        try:
+            u = User(self.site, username)
+            if u.isAnonymous() or u.isBlocked() or username.count('.') is 3:
+                return False
+            elif username in self.bot_set:
+                return False
 
-        u = User(self.site, username)
-        if username is None or u.isAnonymous() or u.isBlocked():
+            if (u.editCount() <= settings.edit_max_editcount
+                and u.editCount() >= settings.edit_min_editcount):
+                return True
             return False
-        elif username in self.bot_set:
+
+        except Exception, e:
+            if type(username) is not type(None):
+                logging.info("Problem with: " + username)
+            logging.info("Problem with username")
             return False
-        if (u.editCount() <= settings.edit_max_editcount
-         and u.editCount() >= settings.edit_min_editcount):
-            return True
-        return False
 
     def get_bot_list(self):
         if os.path.isfile('bot_list.db') is True:
@@ -174,7 +180,7 @@ class Invite:
     def inviter(self):
         for i, editor in enumerate(self.editors.get_editors()):
             self.send(editor, self.contact_users[i % len(self.contact_users)])
-            sleep(1)
+            sleep(12)
 
     def send(self, editor, contact):
         try:
@@ -220,9 +226,9 @@ class DAO:
     def get_list(self):
         return self.db.items()
 
-    def get_editors(self, threshold=1):
-        print "Searching editors with at least " 
-        +str(threshold) + " editions"
+    def get_editors(self):
+        threshold = settings.edit_min_editcount
+        print "Searching editors with at least %d editions" % threshold
         if self.query_buffer is not None:
             response = raw_input(
                 "Query buffer not empty, continue? [y/n]")
