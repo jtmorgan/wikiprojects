@@ -12,8 +12,7 @@ site = Site('pt', 'wikipedia')
 categorias = settings.categorias
 medicina = Collector(site, categorias)
 
-marco = datetime.strptime("2013-01-01", "%Y-%m-%d")
-editores = medicina.get_editors(marco)
+editores = medicina.get_editors(settings.start_time)
 
 print "Editores encontrados: ", len(editores)
 #editores = medicina.load_editors()
