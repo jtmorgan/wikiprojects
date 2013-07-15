@@ -180,7 +180,7 @@ class Invite:
     def inviter(self):
         for i, editor in enumerate(self.editors.get_editors()):
             self.send(editor, self.contact_users[i % len(self.contact_users)])
-            sleep(12)
+            sleep(20)
 
     def send(self, editor, contact):
         try:
