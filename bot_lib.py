@@ -183,14 +183,19 @@ class Invite:
             sleep(20)
 
     def send(self, editor, contact):
-        try:
-            wpage = wikipedia.Page(
+        wpage = wikipedia.Page(
                 self.site, self.user_discussion_page + quote(editor))
-            message = wpage.get() + self.invite % (
+        try:
+            try:
+                message = wpage.get()
+            except Exception, e:
+                message = settings.welcome_msg % (
+                    self.contact_template % (contact, contact, contact))
+            finally:
+                message = message + self.invite % (
                 self.contact_template % (contact, contact, contact))
 
-            print editor, self.invite % (
-                self.contact_template % (contact, contact, contact))
+            print message + " to " + quote(editor)
 
             wpage.put(message, comment=settings.bot_comment)
             print editor, " convidado"
@@ -198,8 +203,8 @@ class Invite:
             self.editors.db[editor]['invite_date'] = datetime.today()
             self.editors.db.sync()
         except Exception, e:
-            print "Erro com o usuário ", editor
-            logging.info("Invite: Erro ao convidar: " + editor)
+            print "Erro com o usuário ", editor, e
+            logging.info("Invite: Erro ao convidar: " + editor + e.__str__())
             #wpage.put(message, comment=self.bot_comment)
 
 
@@ -214,9 +219,20 @@ class DAO:
         self.db.close()
 
     def insert_dict(self, structure):
+        '''As regras desse método podem ditar o funcionamento dos convites do projeto.
+        '''
         for key in structure:
-            self.db[key.encode('utf-8')] = structure[key]
-            print key, "inserted in db"
+            if self.db.has_key(key.encode('utf-8')) is True:
+                if self.db[key.encode('utf-8')]['invited'] is True:
+                    print key, " Already invited"
+                    return
+                elif self.db[key.encode('utf-8')]['edits'] != structure[key]['edits']:
+                    self.db[key.encode('utf-8')]['edits'].append(structure[key]['edits'])
+                    self.db[key.encode('utf-8')]['counter'] = len(self.db[key.encode('utf-8')]['edits'])
+                    print key, " Updated"
+            else:
+                self.db[key.encode('utf-8')] = structure[key]
+                print key, "inserted in db"
         self.db.sync()
 
     def insert_list(self, structure):
