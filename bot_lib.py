@@ -7,6 +7,7 @@ import wikipedia
 import catlib
 import pagegenerators
 import logging
+import time
 import os
 from time import sleep
 import settings
@@ -15,7 +16,9 @@ from datetime import datetime
 from urllib import quote
 from userlib import User
 
-logging.basicConfig(filename='logs/bot.log', level=logging.INFO)
+log_file = time.ctime()
+
+logging.basicConfig(filename='logs/'+ log_file +'.log', level=logging.INFO)
 
 class Collector:
     def __init__(self, site, *categories):
@@ -62,10 +65,7 @@ class Collector:
             try:
                 wpage = wikipedia.Page(self.site, page)
             except Exception, e:
-                logging.info("Collector: Erro com página: " + page)
-                print "Página não existe - 404"
-                if self.log:
-                    print page
+                logging.info("Collector: Erro com página: " + page + " " + time.ctime())
                 return list()
 
             history = wpage.getLatestEditors(limit=100)
@@ -115,24 +115,30 @@ class Collector:
         * How many editions were made
         * Whether is a bot or is blocked
 
-        There is a range of max and min number of editions the 
+        There is a range of max and min number of editions the editor should
+        lie between in order to be invited.
         '''
         try:
             u = User(self.site, username)
-            if u.isAnonymous() or u.isBlocked() or username.count('.') is 3:
+            if u.isAnonymous() or u.isBlocked():
+                #print username, " is out"
+                logging.info(username + " is out: check_user " + time.ctime()) 
                 return False
             elif username in self.bot_set:
                 return False
 
             if (u.editCount() <= settings.edit_max_editcount
                 and u.editCount() >= settings.edit_min_editcount):
+                logging.info(username + " is in: check_user " + time.ctime())
                 return True
+            logging.info(username + " is out: check_user " + time.ctime())
             return False
 
         except Exception, e:
             if type(username) is not type(None):
-                logging.info("Problem with: " + username)
-            logging.info("Problem with username")
+                logging.info("Problem with: " + username + " " + time.ctime())
+                return False
+            logging.info("Problem with username " + time.ctime())
             return False
 
     def get_bot_list(self):
@@ -195,7 +201,7 @@ class Invite:
                 message = message + self.invite % (
                 self.contact_template % (contact, contact, contact))
 
-            print message + " to " + quote(editor)
+            #print message + " to " + quote(editor)
 
             wpage.put(message, comment=settings.bot_comment)
             print editor, " convidado"
@@ -204,9 +210,7 @@ class Invite:
             self.editors.db.sync()
         except Exception, e:
             print "Erro com o usuário ", editor, e
-            logging.info("Invite: Erro ao convidar: " + editor + e.__str__())
-            #wpage.put(message, comment=self.bot_comment)
-
+            logging.info("Invite: Erro ao convidar: " + editor + e.__str__() + time.ctime())
 
 class DAO:
     ''' Database layer  '''
@@ -221,18 +225,20 @@ class DAO:
     def insert_dict(self, structure):
         '''As regras desse método podem ditar o funcionamento dos convites do projeto.
         '''
+        print "Insertingo"
         for key in structure:
             if self.db.has_key(key.encode('utf-8')) is True:
+                logging.info(key + " is already here " + time.ctime())
                 if self.db[key.encode('utf-8')]['invited'] is True:
-                    print key, " Already invited"
+                    logging.info(key + " Already invited " + time.ctime())
                     return
                 elif self.db[key.encode('utf-8')]['edits'] != structure[key]['edits']:
                     self.db[key.encode('utf-8')]['edits'].append(structure[key]['edits'])
                     self.db[key.encode('utf-8')]['counter'] = len(self.db[key.encode('utf-8')]['edits'])
-                    print key, " Updated"
+                    logging.info(key + " Updated " + time.ctime())
             else:
                 self.db[key.encode('utf-8')] = structure[key]
-                print key, "inserted in db"
+                logging.info(key + "inserted in db " + time.ctime())
         self.db.sync()
 
     def insert_list(self, structure):
